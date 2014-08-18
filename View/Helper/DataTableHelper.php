@@ -37,6 +37,7 @@ class DataTableHelper extends HtmlHelper {
         'js' => array(
             'sAjaxSource' => array(),
             'bServerSide' => true,
+            'bStateSave' => true, // LocalStorage state store
             'bRetrieve' => true,
             'oLanguage' => array(
                 "bDecimal" => ",",
@@ -124,10 +125,16 @@ class DataTableHelper extends HtmlHelper {
 		var settings = dataTableSettings[model];
                 settings = $.extend( settings, {
                     fnServerParams: function( aoData ) {
-                        return $.extend( aoData, $("#GastoIndexForm").serializeArray() );
+                        $.each( $("#GastoIndexForm").serializeArray(), function( index, value ) {
+                            aoData.push( value );
+                        } );
                     }
                 });
-                table.dataTable(settings);
+                table.on( 'init.dt', function( oSettings, json ) {
+                    $('.dataTables_length select').uniform();
+                    $('.selector').css('width','');
+                    $('.dataTables_paginate > ul').addClass('pagination');
+                }).dataTable(settings);
 	});
 INIT_SCRIPT;
             $this->Js->buffer( $initScript, array('block' => $this->settings['scriptBlock']));
